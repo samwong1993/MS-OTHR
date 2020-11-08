@@ -1,7 +1,6 @@
 clear
 R = 6371.2;
-%plt = 1 plot the earth,emitter,sensors and the generated sequence
-plt = 1;
+plt = 0;
 if plt == 1
     figure('color','k')
     ha=axes('units','normalized','position',[0 0 1 1]);
@@ -36,7 +35,7 @@ if plt == 1
     axis equal;
     axis auto;
 end
-M = 5;
+M = 6;
 N = M*(M-1)/2;
 Omega = covariance(1,M);
 inv_Omega = inv(Omega(1:M-1,1:M-1));
@@ -56,28 +55,7 @@ P_f = f;
 P_F = P_f/P_fc;
 [max_dis,min_dis,upper] = beta_bound(M,F,R,Rb,Rm,Ym);
 [G] = generate_G(N,M);
-%[emitter,XYZ,beta0] = generator(M,F,R,Rb,Rm,Ym,max_dis,min_dis);
-% beta0 = [0.349025176895742,0.279243732945529,0.174632834143026,0.183395025597251,0.285385790728298];  
-% XYZ = zeros(M,3);  
-% [x0 y0 z0] = LGLTtoXYZ(116.24,39.55,R);  
-% emitter = [x0 y0 z0]';  
-% [x0 y0 z0] = LGLTtoXYZ(128.72,40.55,R);  
-% XYZ(1,:) = [x0 y0 z0];  
-% [x0 y0 z0] = LGLTtoXYZ(130.42,38.68,R);  
-% XYZ(2,:) = [x0 y0 z0];  
-% [x0 y0 z0] = LGLTtoXYZ(132.94,33.82,R);  
-% XYZ(3,:) = [x0 y0 z0];  
-% [x0 y0 z0] = LGLTtoXYZ(130.90,31.84,R);  
-% XYZ(4,:) = [x0 y0 z0];  
-% [x0 y0 z0] = LGLTtoXYZ(129.06,35.63,R);  
-% XYZ(5,:) = [x0 y0 z0];  
-
-
-beta0 = [0.114957231412252,0.449398124172348,0.277420425918117,0.0168095219080640,0.103488345084960];
 XYZ = zeros(M,3);
-%Hong Kong
-[x0 y0 z0] = LGLTtoXYZ(114.16,22.28,R);
-emitter = [x0 y0 z0]';
 %Bei Jing
 [x0 y0 z0] = LGLTtoXYZ(116.41,39.90,R);
 XYZ(1,:) = [x0 y0 z0];
@@ -93,13 +71,119 @@ XYZ(4,:) = [x0 y0 z0];
 %Seoul
 [x0 y0 z0] = LGLTtoXYZ(126.58,37.33,R);
 XYZ(5,:) = [x0 y0 z0];
-tau = generate_tau(M,F,R,Rb,Rm,Ym,emitter,XYZ);
-%Step 3
-[x beta obj] = GPGD(M,N,P_F,R,P_Rb,P_Rm,P_Ym,G(1:M-1,:),tau(1:M-1),inv_Omega,upper,max_dis,min_dis,XYZ,plt);
-dis = norm(x - emitter');
-%Output results
+%Qing Dao
+[x0 y0 z0] = LGLTtoXYZ(120.3826,36.0671,R);
+XYZ(6,:) = [x0 y0 z0];
+%                   
+%Hong Kong
+[x0 y0 z0] = LGLTtoXYZ(114.16                   ,22.28                   ,R);
+emitter4 = [x0 y0 z0]';
+beta = zeros(1,M);
+x = emitter4';
+for k = 1:M
+    beta = solve_eq(F,R,Rb,Rm,Ym,beta,XYZ,x,k);
+end
+beta4 = beta;
+%Jia Yi
+[x0 y0 z0] = LGLTtoXYZ(120.4491                   ,23.4801                   ,R);
+emitter1 = [x0 y0 z0]';
+beta = zeros(1,M);
+x = emitter1';
+for k = 1:M
+    beta = solve_eq(F,R,Rb,Rm,Ym,beta,XYZ,x,k);
+end
+beta1 = beta;
+% beta2 = [0.130743022187950,0.391197329272201,0.520620592610200,0.0738255619888921,0.168515720771200];
+%Yin Chuan
+[x0 y0 z0] = LGLTtoXYZ(106.2309                   ,38.4872                   ,R);
+emitter2 = [x0 y0 z0]';
+beta = zeros(1,M);
+x = emitter2';
+for k = 1:M
+    beta = solve_eq(F,R,Rb,Rm,Ym,beta,XYZ,x,k);
+end
+beta2 = beta;
+% beta1 = [0.486164591596301,0.310478405869350,0.177057112583560,0.00974700715358300,0.143452972295470];
+%Qiqi Haer
+[x0 y0 z0] = LGLTtoXYZ(123.9182                   ,47.3543                   ,R);
+emitter3 = [x0 y0 z0]';
+beta3 = [0.373296850690061,0.105761408290660,0.140327847255840,0.134834308670000,0.315574458947491];
+beta = zeros(1,M);
+x = emitter3';
+for k = 1:M
+    beta = solve_eq(F,R,Rb,Rm,Ym,beta,XYZ,x,k);
+end
+beta3 = beta;
+K = 4;
+tau = [];
+for i = 1:K
+    eval("tau"+string(i)+" = generate_tau(M,F,R,Rb,Rm,Ym,emitter"+string(i)+",XYZ)");
+    tau = [tau,eval("tau"+string(i)+"'")];
+end
+
+t_0 = [];
+for i = 1:K
+    [A B C] = ABC(F,R,Rb,Rm,Ym,eval("beta"+string(i)));
+    eval("[t"+string(i)+" D] = PD(A,B,C,beta"+string(i)+",R,Rb);")
+    t_0 = [t_0,eval("t"+string(i)+"'")];
+end
+
+G(1:M-1,1:M)*t_0 - tau(1:M-1,:)
+
+t = zeros(M,K);
+for i = 1:M-1
+    eval("P_"+string(i)+" = permutation(K);")
+end
+% tau(1:M-1,:)*P*P
+G(1:M-1,1:M)*t - tau(1:M-1,:)*P_1
+tau_0 = tau(1:M-1,:);
+P_tau = [tau(1,:)*P_1;tau(2,:)*P_2;tau(3,:)*P_3;tau(4,:)*P_4;tau(5,:)*P_5];
+
+ini = '';
+for i = 1:M-1
+     ini = ini + "param.cut"+string(i)+"(:,:,1) = zeros(K,K);";
+end
+eval(ini);
+cvx_solver mosek
+trace((G(1:M-1,1:M)*t - P_tau)'*inv_Omega*(G(1:M-1,1:M)*t - P_tau))
+for iter = 1:30
+    [P_tau0 param] = MILP(M,G,t,P_tau,K,param);
+    obj = trace((G(1:M-1,1:M)*t - P_tau0)'*inv_Omega*(G(1:M-1,1:M)*t - P_tau0));
+    fprintf("obj:%2.8f K:%d\n",obj,K);
+    diag1 = trace((G(1:M-1,1:M)*t - P_tau0)'*inv_Omega*(G(1:M-1,1:M)*t - P_tau0));
+    [t_sum,obj_sum,location] = solve_GPGD(M,N,F,Rb,Rm,Ym,P_F,R,P_Rb,P_Rm,P_Ym,G,P_tau0,inv_Omega,upper,max_dis,min_dis,XYZ,plt,K);
+    trace((G(1:M-1,1:M)*t_sum - P_tau0)'*inv_Omega*(G(1:M-1,1:M)*t_sum - P_tau0))
+    diag2 = trace((G(1:M-1,1:M)*t_sum - P_tau0)'*inv_Omega*(G(1:M-1,1:M)*t_sum - P_tau0));
+
+%     if diag2<diag1
+%         P_tau = P_tau0;
+        t = t_sum;
+%     else
+%         t = zeros(M,K);
+%     end
+    index = find(obj_sum >= 1e1);
+    if isempty(index)
+        break
+    end
+    P_tau = P_tau0(:,index);
+	K_old = K;
+    K = size(P_tau,2);
+    if K ~= K_old
+        t = t_sum(:,index);
+        clear param
+        ini = '';
+        for i = 1:M-1
+             ini = ini + "param.cut"+string(i)+"(:,:,1) = zeros(K,K);";
+        end
+        eval(ini);
+    end
+end
+
 if plt == 1
-    scatter3(emitter(1),emitter(2),emitter(3),50,'filled','r')
+    scatter3(emitter1(1),emitter1(2),emitter1(3),50,'filled','r')
+    scatter3(emitter2(1),emitter2(2),emitter2(3),50,'filled','r')
+    scatter3(emitter3(1),emitter3(2),emitter3(3),50,'filled','r')
+    scatter3(emitter4(1),emitter4(2),emitter4(3),50,'filled','r')
     scatter3(x(1),x(2),x(3),50,'k*')
     %text(emitter(1),emitter(2),emitter(3),'e')
 end
@@ -111,31 +195,4 @@ for i = 1:M
     end
     fprintf("Sensor %d:(%2.2f,%2.2f,%2.2f)\n",i,XYZ(i,1),XYZ(i,2),XYZ(i,3))
 end
-fprintf("Non-Perturbated:r0:%2.2f km,Rm:%2.2f km,Ym:%2.2f km,fc:%2.2f MHz,f:%2.2f MHz\n",R,Rm,Ym,fc,f)
-fprintf("Perturbated: r0:%2.2f km,Rm:%2.2f km,Ym:%2.2f km,fc:%2.2f MHz,f:%2.2f MHz\n",R,P_Rm,P_Ym,P_fc,P_f)
-fprintf("True Location:(%2.2f,%2.2f,%2.2f)\n",emitter(1),emitter(2),emitter(3))
-fprintf("Location:(%2.2f,%2.2f,%2.2f)\n",x(1),x(2),x(3))
-fprintf("True Flying angle:(")
-for i = 1:M-1
-    fprintf("%2.2f,",beta0(i))
-end
-fprintf("%2.2f)\n",beta0(M))
-fprintf("Flying angle:(")
-for i = 1:M-1
-    fprintf("%2.2f,",beta(i))
-end
-fprintf("%2.2f)\n",beta(M))
-[lg lt] = XYZtoLGLT(x(1),x(2),x(3),R);
-fprintf("The distance to the emitter is: %2.2f km\n",dis)
-fprintf("%s\n",'Localization successful!')
-%Lengend
-if plt == 1
-	h = legend([point1,point2,point3,point4,point5],'Emitter', 'Sensors', 'Initial Point','Estimated Location','Generated Points','AutoUpdate','off');
-    %set(h,'box','off')
-end
-%plot ray path
-if plt == 1
-    for i = 1:M
-        raypath(emitter,XYZ(i,:),Rm,Rb,Ym,R);
-    end
-end
+
