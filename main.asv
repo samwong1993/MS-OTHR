@@ -151,7 +151,7 @@ for iter = 1:30
     [t_sum,obj_sum,location] = solve_GPGD(M,N,F,Rb,Rm,Ym,P_F,R,P_Rb,P_Rm,P_Ym,G,P_tau0,inv_Omega,upper,max_dis,min_dis,XYZ,plt,K);
     trace((G(1:M-1,1:M)*t_sum - P_tau0)'*inv_Omega*(G(1:M-1,1:M)*t_sum - P_tau0))
     diag2 = trace((G(1:M-1,1:M)*t_sum - P_tau0)'*inv_Omega*(G(1:M-1,1:M)*t_sum - P_tau0));
-    
+
 	t = t_sum;
     index = find(obj_sum >= 1e1);
     if isempty(index)
