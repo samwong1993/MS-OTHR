@@ -147,7 +147,6 @@ for iter = 1:30
     fprintf("obj:%2.8f K:%d\n",obj,K);
     diag1 = trace((G(1:M-1,1:M)*t - P_tau0)'*inv_Omega*(G(1:M-1,1:M)*t - P_tau0));
     [t_sum,obj_sum,location] = solve_GPGD(M,N,F,Rb,Rm,Ym,P_F,R,P_Rb,P_Rm,P_Ym,G,P_tau0,inv_Omega,upper,max_dis,min_dis,XYZ,plt,K);
-    trace((G(1:M-1,1:M)*t_sum - P_tau0)'*inv_Omega*(G(1:M-1,1:M)*t_sum - P_tau0))
     diag2 = trace((G(1:M-1,1:M)*t_sum - P_tau0)'*inv_Omega*(G(1:M-1,1:M)*t_sum - P_tau0));
     
 	t = t_sum;
