@@ -106,7 +106,7 @@ beta2 = beta;
 %Qiqi Haer
 [x0 y0 z0] = LGLTtoXYZ(123.9182                   ,47.3543                   ,R);
 emitter3 = [x0 y0 z0]';
-beta3 = [0.373296850690061,0.105761408290660,0.140327847255840,0.134834308670000,0.315574458947491];
+% beta3 = [0.373296850690061,0.105761408290660,0.140327847255840,0.134834308670000,0.315574458947491];
 beta = zeros(1,M);
 x = emitter3';
 for k = 1:M
@@ -142,7 +142,7 @@ end
 eval(ini);
 cvx_solver mosek
 for iter = 1:30
-    [P_tau0 param] = MILP(M,G,t,P_tau,K,param);
+    [P_tau0 param] = IP(M,G,t,P_tau,K,param);
     obj = trace((G(1:M-1,1:M)*t - P_tau0)'*inv_Omega*(G(1:M-1,1:M)*t - P_tau0));
     fprintf("obj:%2.8f K:%d\n",obj,K);
     diag1 = trace((G(1:M-1,1:M)*t - P_tau0)'*inv_Omega*(G(1:M-1,1:M)*t - P_tau0));

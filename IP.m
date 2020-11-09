@@ -1,4 +1,4 @@
-function [P_tau0 param] = MILP(M,G,t,P_tau,K,param)
+function [P_tau0 param] = IP(M,G,t,P_tau,K,param)
     G_t = G(1:M-1,1:M)*t;
     num = size(param.cut1,3);
     cut = '';
