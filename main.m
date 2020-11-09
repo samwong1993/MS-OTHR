@@ -116,7 +116,7 @@ beta3 = beta;
 K = 4;
 tau = [];
 for i = 1:K
-    eval("tau"+string(i)+" = generate_tau(M,F,R,Rb,Rm,Ym,emitter"+string(i)+",XYZ)");
+    eval("tau"+string(i)+" = generate_tau(M,F,R,Rb,Rm,Ym,emitter"+string(i)+",XYZ);");
     tau = [tau,eval("tau"+string(i)+"'")];
 end
 
@@ -129,10 +129,9 @@ end
 
 t = zeros(M,K);
 for i = 1:M-1
-    eval("P_"+string(i)+" = permutation(K);")
+    eval("P_"+string(i)+" = permutation(K);");
 end
 
-G(1:M-1,1:M)*t - tau(1:M-1,:)*P_1
 tau_0 = tau(1:M-1,:);
 P_tau = [tau(1,:)*P_1;tau(2,:)*P_2;tau(3,:)*P_3;tau(4,:)*P_4;tau(5,:)*P_5];
 
@@ -142,7 +141,6 @@ for i = 1:M-1
 end
 eval(ini);
 cvx_solver mosek
-trace((G(1:M-1,1:M)*t - P_tau)'*inv_Omega*(G(1:M-1,1:M)*t - P_tau))
 for iter = 1:30
     [P_tau0 param] = MILP(M,G,t,P_tau,K,param);
     obj = trace((G(1:M-1,1:M)*t - P_tau0)'*inv_Omega*(G(1:M-1,1:M)*t - P_tau0));
