@@ -66,7 +66,10 @@ end
 
 tau = [];
 for i = 1:K
-    eval("tau"+string(i)+" = generate_tau(M,F,R,Rb,Rm,Ym,emitter"+string(i)+",XYZ);");
+    sigma_t = 1000 * 10^-9 * 3 * 10^5 ;
+    noise_t0 = randn(M,1);
+    noise_t = (sigma_t*G*noise_t0)';
+    eval("tau"+string(i)+" = generate_tau(M,F,R,Rb,Rm,Ym,emitter"+string(i)+",XYZ) + noise_t;");
     tau = [tau,eval("tau"+string(i)+"'")];
 end
 
@@ -91,7 +94,7 @@ for i = 1:M-1
 end
 eval(ini);
 cvx_solver mosek
-for iter = 1:30
+for iter = 1:100
     [P_tau0 param] = IP(M,G,t,P_tau,K,param);
     obj = trace((G(1:M-1,1:M)*t - P_tau0)'*inv_Omega*(G(1:M-1,1:M)*t - P_tau0));
     fprintf("obj:%2.8f K:%d\n",obj,K);
