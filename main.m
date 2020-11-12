@@ -83,6 +83,7 @@ for k = 1:M
     beta = solve_eq(F,R,Rb,Rm,Ym,beta,XYZ,x,k);
 end
 beta4 = beta;
+emitter(:,4) = emitter4;
 %Jia Yi
 [x0 y0 z0] = LGLTtoXYZ(120.4491                   ,23.4801                   ,R);
 emitter1 = [x0 y0 z0]';
@@ -92,6 +93,7 @@ for k = 1:M
     beta = solve_eq(F,R,Rb,Rm,Ym,beta,XYZ,x,k);
 end
 beta1 = beta;
+emitter(:,1) = emitter1;
 % beta2 = [0.130743022187950,0.391197329272201,0.520620592610200,0.0738255619888921,0.168515720771200];
 %Yin Chuan
 [x0 y0 z0] = LGLTtoXYZ(106.2309                   ,38.4872                   ,R);
@@ -102,6 +104,7 @@ for k = 1:M
     beta = solve_eq(F,R,Rb,Rm,Ym,beta,XYZ,x,k);
 end
 beta2 = beta;
+emitter(:,2) = emitter2;
 % beta1 = [0.486164591596301,0.310478405869350,0.177057112583560,0.00974700715358300,0.143452972295470];
 %Qiqi Haer
 [x0 y0 z0] = LGLTtoXYZ(123.9182                   ,47.3543                   ,R);
@@ -113,6 +116,7 @@ for k = 1:M
     beta = solve_eq(F,R,Rb,Rm,Ym,beta,XYZ,x,k);
 end
 beta3 = beta;
+emitter(:,3) = emitter3;
 K = 4;
 tau = [];
 for i = 1:K
@@ -181,8 +185,11 @@ x = P*x_rec;
 for i = 1:size(emitter,2)
     err(i) = norm(x(i,:) - emitter(:,i)');
 end
-
-
+fprintf("(%2.2f",err(1))
+for i = 2:size(emitter,2)
+    fprintf(",%2.2f",err(i))
+end
+fprintf(")\n")
 if plt == 1
     scatter3(emitter1(1),emitter1(2),emitter1(3),50,'filled','r')
     scatter3(emitter2(1),emitter2(2),emitter2(3),50,'filled','r')

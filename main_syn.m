@@ -134,7 +134,11 @@ x = P*x_rec;
 for i = 1:size(emitter,2)
     err(i) = norm(x(i,:) - emitter(:,i)');
 end
-
+fprintf("(%2.2f",err(1))
+for i = 2:size(emitter,2)
+    fprintf(",%2.2f",err(i))
+end
+fprintf(")\n")
 
 
 if plt == 1
