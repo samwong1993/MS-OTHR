@@ -1,4 +1,5 @@
 clear all
+fid=fopen('M6K4.txt','a+');
 R = 6371.2;
 plt = 0;
 if plt == 1
@@ -134,12 +135,11 @@ x = P*x_rec;
 for i = 1:size(emitter,2)
     err(i) = norm(x(i,:) - emitter(:,i)');
 end
-fprintf("(%2.2f",err(1))
+fprintf(fid,"(%2.4f",err(1));
 for i = 2:size(emitter,2)
-    fprintf(",%2.2f",err(i))
+    fprintf(fid,",%2.4f",err(i));
 end
-fprintf(")\n")
-
+fprintf(fid,")\n");
 
 if plt == 1
     scatter3(emitter1(1),emitter1(2),emitter1(3),50,'filled','r')
