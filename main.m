@@ -141,7 +141,8 @@ for i = 1:M-1
 end
 eval(ini);
 cvx_solver mosek
-for iter = 1:30
+x_rec = [];
+for iter = 1:100
     [P_tau0 param] = IP(M,G,t,P_tau,K,param);
     obj = trace((G(1:M-1,1:M)*t - P_tau0)'*inv_Omega*(G(1:M-1,1:M)*t - P_tau0));
     fprintf("obj:%2.8f K:%d\n",obj,K);
@@ -151,13 +152,20 @@ for iter = 1:30
     
 	t = t_sum;
     index = find(obj_sum >= 1e1);
+    dif_index = find(obj_sum <= 1e1);
     if isempty(index)
+        for i = 1:length(dif_index)
+            eval("x_rec = [x_rec;location.x"+string(dif_index(i))+"];");
+        end
         break
     end
     P_tau = P_tau0(:,index);
 	K_old = K;
     K = size(P_tau,2);
     if K ~= K_old
+        for i = 1:length(dif_index)
+            eval("x_rec = [x_rec;location.x"+string(dif_index(i))+"];");
+        end
         t = t_sum(:,index);
         clear param
         ini = '';
@@ -167,6 +175,13 @@ for iter = 1:30
         eval(ini);
     end
 end
+
+[P] = compute_err(x_rec,emitter);
+x = P*x_rec;
+for i = 1:size(emitter,2)
+    err(i) = norm(x(i,:) - emitter(:,i)');
+end
+
 
 if plt == 1
     scatter3(emitter1(1),emitter1(2),emitter1(3),50,'filled','r')
