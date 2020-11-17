@@ -66,7 +66,7 @@ end
 
 tau = [];
 for i = 1:K
-    sigma_t = 1000 * 10^-9 * 3 * 10^5 ;
+    sigma_t = 900 * 10^-9 * 3 * 10^5 ;
     noise_t0 = randn(M,1);
     noise_t = (sigma_t*G*noise_t0)';
     eval("tau"+string(i)+" = generate_tau(M,F,R,Rb,Rm,Ym,emitter"+string(i)+",XYZ) + noise_t;");
@@ -134,7 +134,7 @@ x = P*x_rec;
 for i = 1:size(emitter,2)
     err(i) = norm(x(i,:) - emitter(:,i)');
 end
-fid=fopen('M6K4_2.txt','a+');
+fid=fopen('M6K4_900.txt','a+');
 fprintf(fid,"(%2.4f",err(1));
 for i = 2:size(emitter,2)
     fprintf(fid,",%2.4f",err(i));

@@ -118,9 +118,13 @@ end
 beta3 = beta;
 emitter(:,3) = emitter3;
 K = 4;
+
 tau = [];
 for i = 1:K
-    eval("tau"+string(i)+" = generate_tau(M,F,R,Rb,Rm,Ym,emitter"+string(i)+",XYZ);");
+    sigma_t = 0 * 10^-9 * 3 * 10^5 ;
+    noise_t0 = randn(M,1);
+    noise_t = (sigma_t*G*noise_t0)';
+    eval("tau"+string(i)+" = generate_tau(M,F,R,Rb,Rm,Ym,emitter"+string(i)+",XYZ) + noise_t;");
     tau = [tau,eval("tau"+string(i)+"'")];
 end
 
@@ -185,11 +189,13 @@ x = P*x_rec;
 for i = 1:size(emitter,2)
     err(i) = norm(x(i,:) - emitter(:,i)');
 end
-fprintf("(%2.2f",err(1))
+fid=fopen('real_0.txt','a+');
+fprintf(fid,"(%2.4f",err(1));
 for i = 2:size(emitter,2)
-    fprintf(",%2.2f",err(i))
+    fprintf(fid,",%2.4f",err(i));
 end
-fprintf(")\n")
+fprintf(fid,")\n");
+fclose(fid);
 if plt == 1
     scatter3(emitter1(1),emitter1(2),emitter1(3),50,'filled','r')
     scatter3(emitter2(1),emitter2(2),emitter2(3),50,'filled','r')
