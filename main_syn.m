@@ -1,6 +1,6 @@
 clear all
 R = 6371.2;
-noise = 600;
+noise = 700;
 plt = 0;
 if plt == 1
     figure('color','k')
@@ -99,7 +99,9 @@ eval(ini);
 cvx_solver mosek
 x_rec = [];
 for iter = 1:100
-    [P_tau0,param] = IP(M,G,t,P_tau,K,param);
+    if K ~= 1
+        [P_tau0,param] = IP(M,G,t,P_tau,K,param);
+    end
     obj = trace((G(1:M-1,1:M)*t - P_tau0)'*inv_Omega*(G(1:M-1,1:M)*t - P_tau0));
     fprintf("obj:%2.8f K:%d\n",obj,K);
     [t_sum,obj_sum,location] = solve_GPGD(M,N,F,Rb,Rm,Ym,P_F,R,P_Rb,P_Rm,P_Ym,G,P_tau0,inv_Omega,upper,max_dis,min_dis,XYZ,plt,K);    
