@@ -1,5 +1,6 @@
 clear all
 R = 6371.2;
+noise = 600;
 plt = 0;
 if plt == 1
     figure('color','k')
@@ -66,7 +67,7 @@ end
 
 tau = [];
 for i = 1:K
-    sigma_t = 900 * 10^-9 * 3 * 10^5 ;
+    sigma_t = noise * 10^-9 * 3 * 10^5 ;
     noise_t0 = randn(M,1);
     noise_t = (sigma_t*G*noise_t0)';
     eval("tau"+string(i)+" = generate_tau(M,F,R,Rb,Rm,Ym,emitter"+string(i)+",XYZ) + noise_t;");
@@ -82,12 +83,14 @@ end
 
 t = zeros(M,K);
 for i = 1:M-1
-    eval("P_"+string(i)+" = permutation(K);");
+    eval("param.P"+string(i)+" = permutation(K);");
 end
-
 tau_0 = tau(1:M-1,:);
-P_tau = [tau(1,:)*P_1;tau(2,:)*P_2;tau(3,:)*P_3;tau(4,:)*P_4;tau(5,:)*P_5];
-
+P_tau = [];
+for i = 1:M-1
+    eval("P_tau = [P_tau;tau(i,:)*param.P"+string(i)+"];");
+end
+%Initialize the linear cut sets
 ini = '';
 for i = 1:M-1
      ini = ini + "param.cut"+string(i)+"(:,:,1) = zeros(K,K);";
@@ -96,26 +99,27 @@ eval(ini);
 cvx_solver mosek
 x_rec = [];
 for iter = 1:100
-    [P_tau0 param] = IP(M,G,t,P_tau,K,param);
+    [P_tau0,param] = IP(M,G,t,P_tau,K,param);
     obj = trace((G(1:M-1,1:M)*t - P_tau0)'*inv_Omega*(G(1:M-1,1:M)*t - P_tau0));
     fprintf("obj:%2.8f K:%d\n",obj,K);
-    diag1 = trace((G(1:M-1,1:M)*t - P_tau0)'*inv_Omega*(G(1:M-1,1:M)*t - P_tau0));
-    [t_sum,obj_sum,location] = solve_GPGD(M,N,F,Rb,Rm,Ym,P_F,R,P_Rb,P_Rm,P_Ym,G,P_tau0,inv_Omega,upper,max_dis,min_dis,XYZ,plt,K);
-    diag2 = trace((G(1:M-1,1:M)*t_sum - P_tau0)'*inv_Omega*(G(1:M-1,1:M)*t_sum - P_tau0));
-    
+    [t_sum,obj_sum,location] = solve_GPGD(M,N,F,Rb,Rm,Ym,P_F,R,P_Rb,P_Rm,P_Ym,G,P_tau0,inv_Omega,upper,max_dis,min_dis,XYZ,plt,K);    
 	t = t_sum;
     index = find(obj_sum >= 1e1);
     dif_index = find(obj_sum <= 1e1);
     if isempty(index)
+        %Record the location of the last iterartion and break
         for i = 1:length(dif_index)
             eval("x_rec = [x_rec;location.x"+string(dif_index(i))+"];");
         end
         break
     end
-    P_tau = P_tau0(:,index);
-	K_old = K;
-    K = size(P_tau,2);
-    if K ~= K_old
+    if ~isempty(dif_index)
+        %Update P_tau and K
+        for i = 1:length(dif_index)
+            P_tau = del(P_tau,P_tau0(:,dif_index(i)));
+        end
+        K = size(P_tau,2);
+        %Record the location
         for i = 1:length(dif_index)
             eval("x_rec = [x_rec;location.x"+string(dif_index(i))+"];");
         end
@@ -128,13 +132,14 @@ for iter = 1:100
         eval(ini);
     end
 end
-
+%Compute the localization error
 [P] = compute_err(x_rec,emitter);
 x = P*x_rec;
 for i = 1:size(emitter,2)
     err(i) = norm(x(i,:) - emitter(:,i)');
 end
-fid=fopen('M6K4_900.txt','a+');
+%Load the results
+fid=fopen("M6K4_"+string(noise)+".txt","a+");
 fprintf(fid,"(%2.4f",err(1));
 for i = 2:size(emitter,2)
     fprintf(fid,",%2.4f",err(i));

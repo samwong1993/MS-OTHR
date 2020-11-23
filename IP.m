@@ -52,6 +52,9 @@ function [P_tau0 param] = IP(M,G,t,P_tau,K,param)
          update = update + "param.cut"+string(i)+"(:,:,num+1) = P"+string(i)+";";
     end
     eval(update);
+    for i = 1:M-1
+        eval("param.P"+string(i)+" = P"+string(i)+";");
+    end
 end
 
 

@@ -1,6 +1,6 @@
 clear all
 R = 6371.2;
-noise = 900;
+noise = 600;
 plt = 0;
 if plt == 1
     figure('color','k')
@@ -37,6 +37,7 @@ if plt == 1
     axis auto;
 end
 M = 6;
+K = 4;
 N = M*(M-1)/2;
 Omega = covariance(1,M);
 inv_Omega = inv(Omega(1:M-1,1:M-1));
@@ -56,69 +57,13 @@ P_f = f;
 P_F = P_f/P_fc;
 [max_dis,min_dis,upper] = beta_bound(M,F,R,Rb,Rm,Ym);
 [G] = generate_G(N,M);
-XYZ = zeros(M,3);
-%Bei Jing
-[x0 y0 z0] = LGLTtoXYZ(116.41,39.90,R);
-XYZ(1,:) = [x0 y0 z0];
-%Wu Han
-[x0 y0 z0] = LGLTtoXYZ(114.31,30.59,R);
-XYZ(2,:) = [x0 y0 z0];
-%Shang Hai
-[x0 y0 z0] = LGLTtoXYZ(121.47,31.23,R);
-XYZ(3,:) = [x0 y0 z0];
-%Tokyo
-[x0 y0 z0] = LGLTtoXYZ(139.69,35.69,R);
-XYZ(4,:) = [x0 y0 z0];
-%Seoul
-[x0 y0 z0] = LGLTtoXYZ(126.58,37.33,R);
-XYZ(5,:) = [x0 y0 z0];
-%Qing Dao
-[x0 y0 z0] = LGLTtoXYZ(120.3826,36.0671,R);
-XYZ(6,:) = [x0 y0 z0];                  
-%Hong Kong
-[x0 y0 z0] = LGLTtoXYZ(114.16                   ,22.28                   ,R);
-emitter4 = [x0 y0 z0]';
-beta = zeros(1,M);
-x = emitter4';
-for k = 1:M
-    beta = solve_eq(F,R,Rb,Rm,Ym,beta,XYZ,x,k);
+[emitter,XYZ,beta0] = generator(M,K,F,R,Rb,Rm,Ym,max_dis,min_dis);
+
+for k = 1:K
+    eval("emitter"+string(k)+" = emitter(:,"+string(k)+");");
+    eval("beta"+string(k)+" = beta0("+string(k)+",:);");
 end
-beta4 = beta;
-emitter(:,4) = emitter4;
-%Jia Yi
-[x0 y0 z0] = LGLTtoXYZ(120.4491                   ,23.4801                   ,R);
-emitter1 = [x0 y0 z0]';
-beta = zeros(1,M);
-x = emitter1';
-for k = 1:M
-    beta = solve_eq(F,R,Rb,Rm,Ym,beta,XYZ,x,k);
-end
-beta1 = beta;
-emitter(:,1) = emitter1;
-% beta2 = [0.130743022187950,0.391197329272201,0.520620592610200,0.0738255619888921,0.168515720771200];
-%Yin Chuan
-[x0 y0 z0] = LGLTtoXYZ(106.2309                   ,38.4872                   ,R);
-emitter2 = [x0 y0 z0]';
-beta = zeros(1,M);
-x = emitter2';
-for k = 1:M
-    beta = solve_eq(F,R,Rb,Rm,Ym,beta,XYZ,x,k);
-end
-beta2 = beta;
-emitter(:,2) = emitter2;
-% beta1 = [0.486164591596301,0.310478405869350,0.177057112583560,0.00974700715358300,0.143452972295470];
-%Qiqi Haer
-[x0 y0 z0] = LGLTtoXYZ(123.9182                   ,47.3543                   ,R);
-emitter3 = [x0 y0 z0]';
-% beta3 = [0.373296850690061,0.105761408290660,0.140327847255840,0.134834308670000,0.315574458947491];
-beta = zeros(1,M);
-x = emitter3';
-for k = 1:M
-    beta = solve_eq(F,R,Rb,Rm,Ym,beta,XYZ,x,k);
-end
-beta3 = beta;
-emitter(:,3) = emitter3;
-K = 4;
+      
 
 tau = [];
 for i = 1:K
@@ -145,7 +90,6 @@ P_tau = [];
 for i = 1:M-1
     eval("P_tau = [P_tau;tau(i,:)*param.P"+string(i)+"];");
 end
-%Initialize the linear cut sets
 ini = '';
 for i = 1:M-1
      ini = ini + "param.cut"+string(i)+"(:,:,1) = zeros(K,K);";
@@ -162,19 +106,17 @@ for iter = 1:100
     index = find(obj_sum >= 1e1);
     dif_index = find(obj_sum <= 1e1);
     if isempty(index)
-        %Record the location of the last iterartion and break
+        %Record the last iterartion and break
         for i = 1:length(dif_index)
             eval("x_rec = [x_rec;location.x"+string(dif_index(i))+"];");
         end
         break
     end
     if ~isempty(dif_index)
-        %Update P_tau and K
         for i = 1:length(dif_index)
             P_tau = del(P_tau,P_tau0(:,dif_index(i)));
         end
         K = size(P_tau,2);
-        %Record the location
         for i = 1:length(dif_index)
             eval("x_rec = [x_rec;location.x"+string(dif_index(i))+"];");
         end
@@ -187,14 +129,13 @@ for iter = 1:100
         eval(ini);
     end
 end
-%Compute the localization error
+
 [P] = compute_err(x_rec,emitter);
 x = P*x_rec;
 for i = 1:size(emitter,2)
     err(i) = norm(x(i,:) - emitter(:,i)');
 end
-%Load the results
-fid=fopen("real_"+string(noise)+".txt","a+");
+fid=fopen("M6K4_"+string(noise)+".txt","a+");
 fprintf(fid,"(%2.4f",err(1));
 for i = 2:size(emitter,2)
     fprintf(fid,",%2.4f",err(i));
