@@ -76,7 +76,7 @@ XYZ(5,:) = [x0 y0 z0];
 [x0 y0 z0] = LGLTtoXYZ(120.3826,36.0671,R);
 XYZ(6,:) = [x0 y0 z0];                  
 %Hong Kong
-[x0 y0 z0] = LGLTtoXYZ(114.16                   ,22.28                   ,R);
+[x0 y0 z0] = LGLTtoXYZ(114.16,22.28,R);
 emitter4 = [x0 y0 z0]';
 beta = zeros(1,M);
 x = emitter4';
@@ -86,7 +86,7 @@ end
 beta4 = beta;
 emitter(:,4) = emitter4;
 %Jia Yi
-[x0 y0 z0] = LGLTtoXYZ(120.4491                   ,23.4801                   ,R);
+[x0 y0 z0] = LGLTtoXYZ(120.4491,23.4801,R);
 emitter1 = [x0 y0 z0]';
 beta = zeros(1,M);
 x = emitter1';
@@ -97,7 +97,7 @@ beta1 = beta;
 emitter(:,1) = emitter1;
 % beta2 = [0.130743022187950,0.391197329272201,0.520620592610200,0.0738255619888921,0.168515720771200];
 %Yin Chuan
-[x0 y0 z0] = LGLTtoXYZ(106.2309                   ,38.4872                   ,R);
+[x0 y0 z0] = LGLTtoXYZ(106.2309,38.4872,R);
 emitter2 = [x0 y0 z0]';
 beta = zeros(1,M);
 x = emitter2';
@@ -108,7 +108,7 @@ beta2 = beta;
 emitter(:,2) = emitter2;
 % beta1 = [0.486164591596301,0.310478405869350,0.177057112583560,0.00974700715358300,0.143452972295470];
 %Qiqi Haer
-[x0 y0 z0] = LGLTtoXYZ(123.9182                   ,47.3543                   ,R);
+[x0 y0 z0] = LGLTtoXYZ(123.9182,47.3543,R);
 emitter3 = [x0 y0 z0]';
 % beta3 = [0.373296850690061,0.105761408290660,0.140327847255840,0.134834308670000,0.315574458947491];
 beta = zeros(1,M);
@@ -193,13 +193,13 @@ x = P*x_rec;
 for i = 1:size(emitter,2)
     err(i) = norm(x(i,:) - emitter(:,i)');
 end
-%Load the results
+%Save the results
 fid=fopen("real_"+string(noise)+".txt","a+");
-fprintf(fid,"(%2.4f",err(1));
+fprintf(fid,"%2.4f",err(1));
 for i = 2:size(emitter,2)
     fprintf(fid,",%2.4f",err(i));
 end
-fprintf(fid,")\n");
+fprintf(fid,"\n");
 fclose(fid);
 if plt == 1
     scatter3(emitter1(1),emitter1(2),emitter1(3),50,'filled','r')

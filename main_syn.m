@@ -138,13 +138,13 @@ x = P*x_rec;
 for i = 1:size(emitter,2)
     err(i) = norm(x(i,:) - emitter(:,i)');
 end
-%Load the results
+%Save the results
 fid=fopen("M6K4_"+string(noise)+".txt","a+");
-fprintf(fid,"(%2.4f",err(1));
+fprintf(fid,"%2.4f",err(1));
 for i = 2:size(emitter,2)
     fprintf(fid,",%2.4f",err(i));
 end
-fprintf(fid,")\n");
+fprintf(fid,"\n");
 fclose(fid);
 if plt == 1
     scatter3(emitter1(1),emitter1(2),emitter1(3),50,'filled','r')
