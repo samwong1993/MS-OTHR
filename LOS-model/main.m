@@ -8,7 +8,7 @@ c = 10;
 % rng(22);
 range = 100;initial = -50;
 %dim:d=2 number of sources:K=2 senors M=8;
-d = 2; K = 3; M = 12; eta = 0.01;
+d = 2; K = 5 ; M = 12; eta = 0.01;
 xTrue = initial + range*rand(d,K);
 s = initial + range*rand(d,M);   % Sensor Location
 Omega = ones(M-1,M-1)+eye(M-1); inv_Omega =inv(Omega); % covariance matrix
@@ -50,7 +50,7 @@ end
 eval(ini);
 
 P_tau = tau; t = zeros(M,K); x_rec = [];
-for iter = 1:100
+for iter = 1:1000
     if K ~= 1
         [P_tau0, param] = IP_los(G,param,K,M,t,P_tau);
     end
