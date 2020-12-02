@@ -14,6 +14,7 @@ end
 % cvx_setup;
 cvx_solver gurobi_3;
 cvx_begin quiet
+cvx_precision best
 variable P(K,K,M-1) binary
 variable z(M-1,K)
 
