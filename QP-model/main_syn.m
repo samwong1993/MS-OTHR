@@ -103,7 +103,7 @@ for iter = 1:100
         [P_tau0,param] = IP(M,G,t,P_tau,K,param);
     end
     obj = trace((G(1:M-1,1:M)*t - P_tau0)'*inv_Omega*(G(1:M-1,1:M)*t - P_tau0));
-    fprintf("obj:%2.8f K:%d\n",obj,K);
+    fprintf("iter:%d obj:%2.8f K:%d\n",iter,obj,K);
     [t_sum,obj_sum,location] = solve_GPGD(M,N,F,Rb,Rm,Ym,P_F,R,P_Rb,P_Rm,P_Ym,G,P_tau0,inv_Omega,upper,max_dis,min_dis,XYZ,plt,K);    
 	t = t_sum;
     index = find(obj_sum >= 1e1);

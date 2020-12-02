@@ -12,7 +12,7 @@ for iter = 1:num
 end
 
 % cvx_setup;
-cvx_solver gurobi;
+cvx_solver gurobi_3;
 cvx_begin quiet
 variable P(K,K,M-1) binary
 variable z(M-1,K)
