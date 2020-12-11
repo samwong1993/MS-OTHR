@@ -12,7 +12,7 @@ for iter = 1:num
 end
 
 % cvx_setup;
-cvx_solver gurobi_3;
+cvx_solver gurobi_2;
 cvx_begin quiet
 cvx_precision best
 variable P(K,K,M-1) binary
@@ -41,4 +41,5 @@ for i = 1:M-1
     update = update + "param.cut"+string(i)+"(:,:,num+1) = P(:,:,"+string(i)+");";
 end
 eval(update);
+param.z = z;
 end
