@@ -87,7 +87,7 @@ eval(ini);
 
 P_tau = tau; t = zeros(M,K); 
 obj_best = 99999;
-for iter = 1:100
+for iter = 1:30
     if K ~= 1
         [P_tau0, param] = IP_los(G,param,K,M,t,P_tau);
     end

@@ -21,12 +21,12 @@ eta = 0; % noise power
 % Example 6 (Shen) --- Large-scale
 s = [-90,-90,-90,-90,-90,-30,-30,-30,-30,-30,30,30,30,30,30,90,90,90,90,90;-90,-45,0,45,90,-90,-45,0,45,90,-90,-45,0,45,90,-90,-45,0,45,90];
 xTrue = [0,60,-60,-65,70,0,10;70,60,30,-40,-60,-65,0];
-%Attack example 1 
-s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
-xTrue = [100,-200,30;-100,-25,200];
-% %Attack example 2 
+% %Attack example 1 
 % s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
-% xTrue = [10,-20,30;-100,-25,20];
+% xTrue = [100,-200,30;-100,-25,200];
+%Attack example 2 
+s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
+xTrue = [10,-20,30;-100,-25,20];
 % %Attack example 3 
 % s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
 % xTrue = [10,-20,30;-10,-25,20];
@@ -40,7 +40,7 @@ Omega = ones(M-1,M-1)+eye(M-1); inv_Omega =inv(Omega); % covariance matrix
 
 % figure(1)
 % hold on
-varNos = [1 0.316227766016838 0.1 0.031622776601684 0.001]
+varNos = [1 0.316227766016838 0.1 0.031622776601684 0.01 0.003162277660168 0.001];
 SNR=10.*log10(1./varNos)
 for idx_SNR = 1:length(SNR)
     for idx_seed = 1:30
@@ -102,7 +102,7 @@ for idx_SNR = 1:length(SNR)
         err(i) = norm(x(i,:) - xTrue(:,i)');
     end
     %Save the results
-    fid=fopen("model_1_SNR"+string(SNR(idx_SNR))+".txt","a+");
+    fid=fopen("model_2_SNR"+string(SNR(idx_SNR))+".txt","a+");
     fprintf(fid,"%2.4f",err(1));
     for i = 2:size(xTrue,2)
         fprintf(fid,",%2.4f",err(i));

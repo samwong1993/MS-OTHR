@@ -2,12 +2,12 @@
 clc
 clear all;
 LOOP = 1; % Number of Monte Carlo simulation
-MapConfig = 0; % "0": Large size; "1": Close sensors; else: Normal
-varNos = 0.1; % variance of noise
+MapConfig = 10; % "0": Large size; "1": Close sensors; else: Normal
+varNos = 1; % variance of noise
 SNR=10*log10(1/varNos);
 InitialSel=1; % "0": generate a new initialization each iteration; "1": using the same initialization in each iteration
 NoiseType = 0; % "0": Gaussian; else: Uniform
-metric=0; % Algorithm 1: "0": universal upper bound; "1": l2-norm; "2": l1-norm
+metric=1; % Algorithm 1: "0": universal upper bound; "1": l2-norm; "2": l1-norm
 refineSel=0; % Way to determine the allocation; "0": Method in Paper; "1": Projecting to nearest permutation matrix
 rmetric=0; % Algorithm 3: "0": universal upper bound; "1": l2-norm; "2": l1-norm
 c=1;
@@ -33,18 +33,18 @@ elseif MapConfig==1 % Close Sources
 else
     M=3; N=8; % Normal Sources
     
-    %Attack example 1 
-    s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
-    xTrue = [100,-200,30;-100,-25,200];
+%     %Attack example 1 
+%     s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
+%     xTrue = [100,-200,30;-100,-25,200];
     %Attack example 2 
     s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
     xTrue = [10,-20,30;-100,-25,20];
-    %Attack example 3 
-    s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
-    xTrue = [10,-20,30;-10,-25,20];
-	%Attack example 4 
-    s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
-    xTrue = [100,-200,-100,100];
+%     %Attack example 3 
+%     s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
+%     xTrue = [10,-20,30;-10,-25,20];
+% 	%Attack example 4 
+%     s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
+%     xTrue = [100,-200,-100,100];
 
     x = s;
     y = xTrue;
@@ -59,7 +59,7 @@ end
 MFac=factorial(M); % for setting rmse vector
 rmseInt=0; rmseFinal=0; rmsePer=0; % rmse of variables
 
-for idx=1
+for idx=4
     
 %% Generating measurements
 rand('seed',idx-1); randn('seed',idx-1); % using the same set of random numbers
@@ -87,7 +87,7 @@ for i=1:N-1
 end
 
 %% Algorithm
-cvx_solver sedumi
+cvx_solver gurobi
 if InitialSel==0
     ymPrev=randn(2,M);
 else
