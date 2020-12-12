@@ -1,16 +1,15 @@
 %% Multiple sources
 clc
 clear all;
-LOOP = 2; % Number of Monte Carlo simulation
-MapConfig = 1; % "0": Large size; "1": Close sensors; else: Normal
-varNos = 1; % variance of noise
+LOOP = 1; % Number of Monte Carlo simulation
+MapConfig = 0; % "0": Large size; "1": Close sensors; else: Normal
+varNos = 0.1; % variance of noise
 SNR=10*log10(1/varNos);
 InitialSel=1; % "0": generate a new initialization each iteration; "1": using the same initialization in each iteration
 NoiseType = 0; % "0": Gaussian; else: Uniform
-metric=2; % Algorithm 1: "0": universal upper bound; "1": l2-norm; "2": l1-norm
-refineSel=0; % Way to determine the allocation;  "0": Method in Paper; "1": Projecting to nearest permutation matrix
-rmetric=2;
-; % Algorithm 3: "0": universal upper bound; "1": l2-norm; "2": l1-norm
+metric=0; % Algorithm 1: "0": universal upper bound; "1": l2-norm; "2": l1-norm
+refineSel=0; % Way to determine the allocation; "0": Method in Paper; "1": Projecting to nearest permutation matrix
+rmetric=0; % Algorithm 3: "0": universal upper bound; "1": l2-norm; "2": l1-norm
 c=1;
 
 if MapConfig == 0 % Large Size
@@ -25,7 +24,7 @@ if MapConfig == 0 % Large Size
     y(:,5)=[70;-60]; y(:,6)=[0;-65]; y(:,7)=[10;0];
 
 elseif MapConfig==1 % Close Sources
-    M=2; N=9;
+    M=3; N=9;
     x=zeros(2,N); % anchor nodes
     x(:,1)=[40;40]; x(:,2)=[40;-40]; x(:,3)=[-40;40]; x(:,4)=[-40;-40]; x(:,5)=[40;0];
     x(:,6)=[0;40]; x(:,7)=[-40;0]; x(:,8)=[0;-40]; x(:,9)=[10;5];
@@ -33,17 +32,34 @@ elseif MapConfig==1 % Close Sources
     y(:,1)=[10;-10]; y(:,2)=[20;0]; y(:,3)=[0;-10];
 else
     M=3; N=8; % Normal Sources
-    x=zeros(2,N); % anchor nodes
-    x(:,1)=[40;40]; x(:,2)=[40;-40]; x(:,3)=[-40;40]; x(:,4)=[-40;-40];
-    x(:,5)=[40;0]; x(:,6)=[0;40]; x(:,7)=[-40;0]; x(:,8)=[0;-40];
-    y=zeros(2,M); % source nodes
-    y(:,1)=[10;-10]; y(:,2)=[-20;-25]; y(:,3)=[30;20];
+    
+    %Attack example 1 
+    s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
+    xTrue = [100,-200,30;-100,-25,200];
+    %Attack example 2 
+    s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
+    xTrue = [10,-20,30;-100,-25,20];
+    %Attack example 3 
+    s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
+    xTrue = [10,-20,30;-10,-25,20];
+	%Attack example 4 
+    s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
+    xTrue = [100,-200,-100,100];
+
+    x = s;
+    y = xTrue;
+    
+%     x=zeros(2,N); % anchor nodes
+%     x(:,1)=[40;40]; x(:,2)=[40;-40]; x(:,3)=[-40;40]; x(:,4)=[-40;-40];
+%     x(:,5)=[40;0]; x(:,6)=[0;40]; x(:,7)=[-40;0]; x(:,8)=[0;-40];
+%     y=zeros(2,M); % source nodes
+%     y(:,1)=[100;-100]; y(:,2)=[-200;-25]; y(:,3)=[30;200];
 end
 
 MFac=factorial(M); % for setting rmse vector
 rmseInt=0; rmseFinal=0; rmsePer=0; % rmse of variables
 
-for idx=1:LOOP
+for idx=1
     
 %% Generating measurements
 rand('seed',idx-1); randn('seed',idx-1); % using the same set of random numbers
@@ -75,12 +91,12 @@ cvx_solver sedumi
 if InitialSel==0
     ymPrev=randn(2,M);
 else
-    if idx==1
+%     if idx==1
         ymPrev=randn(2,M);
         ymPrevOne=ymPrev;
-    else
-       ymPrev=ymPrevOne; 
-    end
+%     else
+%        ymPrev=ymPrevOne; 
+%     end
 end
 
 %% Algorithm 1
@@ -150,11 +166,17 @@ rmseCurrent=sqrt(rmseFinal/idx/M);
 [rmseCurrent idx]
 
 end
-
+cvx_solver gurobi
+[P] = compute_err(yE',y);
+x_s = P*yE';
+for i = 1:size(y,2)
+    err(i) = norm(x_s(i,:) - y(:,i)');
+end
+err
 % Print out result
-rmseInt=sqrt(rmseInt/LOOP/M)
-rmseFinal=sqrt(rmseFinal/LOOP/M)
-rmsePer=sqrt(rmsePer/LOOP/M)
+rmseInt=sqrt(rmseInt/LOOP/M);
+rmseFinal=sqrt(rmseFinal/LOOP/M);
+rmsePer=sqrt(rmsePer/LOOP/M);
 iterInt=iter/LOOP;
 iterFinal=iterR/LOOP;
 mean(iterFinal);

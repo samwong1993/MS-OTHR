@@ -4,7 +4,7 @@
 
 clear all
 clc;
-c = 10;
+c = 1;
 % range = 100;initial = -50;
 % %dim:d=2 number of sources:K=2 senors M=8;
 % d = 2; K = 5 ; M = 12; eta = 0.01;
@@ -21,15 +21,15 @@ eta = 0; % noise power
 % Example 6 (Shen) --- Large-scale
 s = [-90,-90,-90,-90,-90,-30,-30,-30,-30,-30,30,30,30,30,30,90,90,90,90,90;-90,-45,0,45,90,-90,-45,0,45,90,-90,-45,0,45,90,-90,-45,0,45,90];
 xTrue = [0,60,-60,-65,70,0,10;70,60,30,-40,-60,-65,0];
-%Attack example 1 
-s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
-xTrue = [100,-200,30;-100,-25,200];
-%Attack example 2 
-s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
-xTrue = [10,-20,30;-100,-25,20];
-%Attack example 3 
-s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
-xTrue = [10,-20,30;-10,-25,20];
+% %Attack example 1 
+% s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
+% xTrue = [100,-200,30;-100,-25,200];
+% %Attack example 2 
+% s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
+% xTrue = [10,-20,30;-100,-25,20];
+% %Attack example 3 
+% s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
+% xTrue = [10,-20,30;-10,-25,20];
 
 % xTrue(:,1) = [];
 % Example 7 (Shen)
@@ -37,10 +37,21 @@ xTrue = [10,-20,30;-10,-25,20];
 [d,M] = size(s); K = size(xTrue,2);
 Omega = ones(M-1,M-1)+eye(M-1); inv_Omega =inv(Omega); % covariance matrix
 
+
+figure(1)
+hold on
+varNos = 1;
+for idx = 1:1
+%% Generating measurements
+rand('seed',idx-1); randn('seed',idx-1); % using the same set of random numbers
+
+nm=randn(M,K)*sqrt(varNos);
+
+
 tTrue = zeros(M,K);
 for i = 1:M
     for k = 1:K
-        tTrue(i,k) = norm(s(:,i)-xTrue(:,k)) / c;
+        tTrue(i,k) = norm(s(:,i)-xTrue(:,k)) / c + nm(i,k);;
     end
 end
 
@@ -108,3 +119,4 @@ fprintf(fid,"\n");
 fclose(fid);
 plot(s(1,:), s(2,:),'bo', xTrue(1,:), xTrue(2,:), 'r*',x_rec(1,:), x_rec(2,:), 'ks');
 legend({'Sensors', 'Sources', 'Recovered Sources'});
+end
