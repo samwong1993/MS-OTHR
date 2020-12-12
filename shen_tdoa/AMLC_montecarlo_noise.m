@@ -42,7 +42,7 @@ Omega = ones(M-1,M-1)+eye(M-1); inv_Omega =inv(Omega); % covariance matrix
 % hold on
 varNos = [1 0.316227766016838 0.1 0.031622776601684 0.01 0.003162277660168 0.001];
 SNR=10.*log10(1./varNos)
-for idx_SNR = 1:length(SNR)
+for idx_SNR = 2:length(SNR)
     for idx_seed = 1:30
     %% Generating measurements
     rand('seed',idx_seed-1); randn('seed',idx_seed-1); % using the same set of random numbers
