@@ -21,9 +21,9 @@ eta = 0; % noise power
 % Example 6 (Shen) --- Large-scale
 s = [-90,-90,-90,-90,-90,-30,-30,-30,-30,-30,30,30,30,30,30,90,90,90,90,90;-90,-45,0,45,90,-90,-45,0,45,90,-90,-45,0,45,90,-90,-45,0,45,90];
 xTrue = [0,60,-60,-65,70,0,10;70,60,30,-40,-60,-65,0];
-% %Attack example 1 
-% s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
-% xTrue = [100,-200,30;-100,-25,200];
+%Attack example 1 
+s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
+xTrue = [100,-200,30;-100,-25,200];
 % %Attack example 2 
 % s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
 % xTrue = [10,-20,30;-100,-25,20];
@@ -41,6 +41,7 @@ Omega = ones(M-1,M-1)+eye(M-1); inv_Omega =inv(Omega); % covariance matrix
 figure(1)
 hold on
 varNos = 1;
+SNR=10*log10(1/varNos);
 for idx = 1:1
 %% Generating measurements
 rand('seed',idx-1); randn('seed',idx-1); % using the same set of random numbers
@@ -51,7 +52,7 @@ nm=randn(M,K)*sqrt(varNos);
 tTrue = zeros(M,K);
 for i = 1:M
     for k = 1:K
-        tTrue(i,k) = norm(s(:,i)-xTrue(:,k)) / c + nm(i,k);;
+        tTrue(i,k) = norm(s(:,i)-xTrue(:,k)) / c + 0*nm(i,k);;
     end
 end
 
@@ -86,7 +87,7 @@ eval(ini);
 
 P_tau = tau; t = zeros(M,K); 
 obj_best = 99999;
-for iter = 1:30
+for iter = 1:100
     if K ~= 1
         [P_tau0, param] = IP_los(G,param,K,M,t,P_tau);
     end
@@ -110,7 +111,7 @@ for i = 1:size(xTrue,2)
     err(i) = norm(x(i,:) - xTrue(:,i)');
 end
 %Save the results
-fid=fopen("results.txt","a+");
+fid=fopen("model_1_SNR"+string(SNR)+".txt","a+");
 fprintf(fid,"%2.4f",err(1));
 for i = 2:size(xTrue,2)
     fprintf(fid,",%2.4f",err(i));
