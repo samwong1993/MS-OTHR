@@ -39,9 +39,9 @@ else
     %Attack example 2 
     s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
     xTrue = [10,-20,30;-100,-25,20];
-%     %Attack example 3 
-%     s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
-%     xTrue = [10,-20,30;-10,-25,20];
+    %Attack example 3 
+    s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
+    xTrue = [10,-20,30;-10,-25,20];
 % 	%Attack example 4 
 %     s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
 %     xTrue = [100,-200,-100,100];
@@ -175,7 +175,7 @@ for idx_SNR = 1:length(SNR)
         err(i) = norm(x_s(i,:) - y(:,i)');
     end
     err
-    fid=fopen("shen_model_2_SNR"+string(SNR(idx_SNR))+".txt","a+");
+    fid=fopen("shen_model_3_SNR"+string(SNR(idx_SNR))+".txt","a+");
     fprintf(fid,"%2.4f",err(1));
     for i = 2:size(xTrue,2)
         fprintf(fid,",%2.4f",err(i));
