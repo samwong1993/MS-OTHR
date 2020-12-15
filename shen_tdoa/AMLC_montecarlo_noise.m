@@ -41,8 +41,8 @@ Omega = ones(M-1,M-1)+eye(M-1); inv_Omega =inv(Omega); % covariance matrix
 % hold on
 varNos = [1 0.316227766016838 0.1 0.031622776601684 0.01 0.003162277660168 0.001];
 SNR=10.*log10(1./varNos);
-for idx_SNR = 1:length(SNR)
-    for idx_seed = 1:30
+for idx_SNR = 1%7:length(SNR)
+    for idx_seed = 22%1:30
     %% Generating measurements
     rand('seed',idx_seed-1); randn('seed',idx_seed-1); % using the same set of random numbers
     tTrue = zeros(M,K);
@@ -79,7 +79,7 @@ for idx_SNR = 1:length(SNR)
     eval(ini);
     P_tau = tau; t = zeros(M,K); 
     obj_best = 99999;
-    for idx_alg = 1:30
+    for idx_alg = 1:80
         if K ~= 1
             [P_tau0, param] = IP_los(G,param,K,M,t,P_tau);
         end
@@ -95,7 +95,7 @@ for idx_SNR = 1:length(SNR)
                 x_rec = [x_rec,location(:,i)];
             end
         end
-        if obj_best<10
+        if obj_best<3
             break
         end
     end
