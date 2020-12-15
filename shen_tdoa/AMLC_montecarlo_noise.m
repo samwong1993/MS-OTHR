@@ -79,7 +79,7 @@ for idx_SNR = 1:length(SNR)
     eval(ini);
     P_tau = tau; t = zeros(M,K); 
     obj_best = 99999;
-    for idx_alg = 1:100
+    for idx_alg = 1:30
         if K ~= 1
             [P_tau0, param] = IP_los(G,param,K,M,t,P_tau);
         end
@@ -94,6 +94,9 @@ for idx_SNR = 1:length(SNR)
             for i = 1:K
                 x_rec = [x_rec,location(:,i)];
             end
+        end
+        if obj_best<10
+            break
         end
     end
     %Compute the localization error
