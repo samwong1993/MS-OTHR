@@ -16,7 +16,7 @@ end
 plot(SNR,err_shen,'^-', 'linewidth', 1.1, 'markerfacecolor', [29, 191, 151]/255);
 hold on
 plot(SNR,err,'ok-','linewidth',1.1,'markerfacecolor',[36, 169, 225]/255);
-legend("Shen's",'AMLC');
+legend("Shen's L-2 norm",'AMLC');
 % for i = 1:m
 %     plot(sigma,10^3*error(i,:),'b--o') 
 % end

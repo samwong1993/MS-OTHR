@@ -9,7 +9,7 @@ InitialSel=1; % "0": generate a new initialization each iteration; "1": using th
 NoiseType = 0; % "0": Gaussian; else: Uniform
 metric=1; % Algorithm 1: "0": universal upper bound; "1": l2-norm; "2": l1-norm
 refineSel=0; % Way to determine the allocation; "0": Method in Paper; "1": Projecting to nearest permutation matrix
-rmetric=0; % Algorithm 3: "0": universal upper bound; "1": l2-norm; "2": l1-norm
+rmetric=1; % Algorithm 3: "0": universal upper bound; "1": l2-norm; "2": l1-norm
 c=1;
 
 if MapConfig == 0 % Large Size
@@ -166,7 +166,7 @@ rmseCurrent=sqrt(rmseFinal/idx/M);
 [rmseCurrent idx]
 
 end
-cvx_solver gurobi
+cvx_solver gurobi_2
 [P] = compute_err(yE',y);
 x_s = P*yE';
 for i = 1:size(y,2)

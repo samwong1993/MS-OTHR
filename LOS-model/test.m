@@ -11,7 +11,7 @@ c = 10;
 % xTrue = initial + range*rand(d,K);
 % s = initial + range*rand(d,M);   % Sensor Location
 % rng(23)
-eta = 0; % noise power
+varNos = 1;
 % d = 2; K = 7; M = 20; 
 % range = 1000; initial = -500;
 % xTrue = initial + range*rand(d,K);
@@ -51,19 +51,18 @@ end
 
 PTrue = zeros(K,K,M-1); I = eye(K);
 tau = zeros(M-1,K); orderPerm = zeros(K, M-1);
-% t_noise=eta/2*randn(K,M);
-t_noise = eta/2*rand(M,K);
- for i=1:M-1
-     orderPerm(:,i) = randperm(K)';
-     PTrue(:,:,i) = I(orderPerm(:,i),:);
-     t_error = t_noise(i+1,:) - t_noise(1,:);
-     tau(i,:) = (delta_tTrue(i,:) + t_error)* PTrue(:,:,i);
- end
-
- G = zeros(M-1,M);
- G(:,1) = -ones(M-1,1);
+G = zeros(M-1,M);
+G(:,1) = -ones(M-1,1);
 for i = 1:M-1
     G(i,i+1) = 1;
+end
+sigma_t = varNos;
+noise_t0 = randn(M,K);
+noise_t = (sigma_t*G*noise_t0)
+for i=1:M-1
+    orderPerm(:,i) = randperm(K)';
+    PTrue(:,:,i) = I(orderPerm(:,i),:);
+    tau(i,:) = delta_tTrue(i,:)* PTrue(:,:,i) + noise_t(i,:);
 end
 
 %% solve £¨IP£©

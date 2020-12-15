@@ -4,13 +4,12 @@ function [Pim,ym,iter,optvalCurr] = shenA1m1_tdoa(ymPrev,tdoa_meas,x,M,N,c)
 iter=0;
 optvalCurr=1;
 optvalPrev=-1;
-
+Omega = ones(N-1,N-1)+eye(N-1); inv_Omega =inv(Omega);
 while abs(optvalCurr-optvalPrev)>1e-3
     cvx_begin quiet
-        variables ym(2,M) Pim(M,M,N-1) mu1(N-1,M) tt;
-        minimize real(tt)
+        variables ym(2,M) Pim(M,M,N-1) mu1(N-1,M) tt(M);
+        minimize sum(tt)
         subject to
-        norm(vec(mu1))<=tt;
         for m=1:M
             ref = ymPrev(:,m)-x(:,1);
             refnorm = norm(ref);
@@ -26,6 +25,9 @@ while abs(optvalCurr-optvalPrev)>1e-3
                     sum(Pim(:,j,i))==1;        
                 end
             end
+        end
+        for i = 1:M
+            mu1(:,i)'*inv_Omega*mu1(:,i)<=tt(i)
         end
     cvx_end
     optvalPrev=optvalCurr;

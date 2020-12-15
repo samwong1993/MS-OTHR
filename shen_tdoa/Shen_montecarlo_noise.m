@@ -3,13 +3,11 @@ clc
 clear all;
 LOOP = 1; % Number of Monte Carlo simulation
 MapConfig = 10; % "0": Large size; "1": Close sensors; else: Normal
-varNos = 1; % variance of noise
-SNR=10*log10(1/varNos);
 InitialSel=1; % "0": generate a new initialization each iteration; "1": using the same initialization in each iteration
 NoiseType = 0; % "0": Gaussian; else: Uniform
 metric=1; % Algorithm 1: "0": universal upper bound; "1": l2-norm; "2": l1-norm
 refineSel=0; % Way to determine the allocation; "0": Method in Paper; "1": Projecting to nearest permutation matrix
-rmetric=0; % Algorithm 3: "0": universal upper bound; "1": l2-norm; "2": l1-norm
+rmetric=1; % Algorithm 3: "0": universal upper bound; "1": l2-norm; "2": l1-norm
 c=1;
 
 if MapConfig == 0 % Large Size
@@ -75,9 +73,17 @@ for idx_SNR = 1:length(SNR)
     t0=zeros(N,M); % true propagation time
     for i=1:N
         for j=1:M
-            t0(i,j)=norm(x(:,i)-y(:,j))/c+nm(i,j);
+            t0(i,j)=norm(x(:,i)-y(:,j))/c;
         end
     end
+    G = zeros(N-1,N);
+    G(:,1) = -ones(N-1,1);
+    for i = 1:N-1
+        G(i,i+1) = 1;
+    end
+    sigma_t = varNos(idx_SNR);
+    noise_t0 = randn(N,M);
+    noise_t = (sigma_t*G*noise_t0);
     % Setting the first sensor as reference sensor, get the TDOA measurements
     tdoa = zeros(N-1,M); tdoa_meas = zeros(N-1,M);
     for i = 1:N-1
@@ -87,7 +93,7 @@ for idx_SNR = 1:length(SNR)
     for i=1:N-1
         [tdoa_meas(i,:),sortIdx(:,i)]=sort(tdoa(i,:),'ascend'); % Sort t by the ascending order of the TOA measurements
     end
-
+    tdoa_meas = tdoa_meas + noise_t;
     %% Algorithm
     cvx_solver gurobi
     if InitialSel==0
@@ -168,7 +174,7 @@ for idx_SNR = 1:length(SNR)
     [rmseCurrent idx_seed];
 
     
-    cvx_solver gurobi
+    cvx_solver gurobi_2
     [P] = compute_err(yE',y);
     x_s = P*yE';
     for i = 1:size(y,2)
