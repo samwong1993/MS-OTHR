@@ -31,14 +31,14 @@ elseif MapConfig==1 % Close Sources
     y=zeros(2,M); % source nodes
     y(:,1)=[10;-10]; y(:,2)=[20;0]; y(:,3)=[0;-10];
 else
-    M=3; N=8; % Normal Sources
+    M=3; N=3; % Normal Sources
     
 %     %Attack example 1 
 %     s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
 %     xTrue = [100,-200,30;-100,-25,200];
     %Attack example 2 
-    s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
-    xTrue = [10,-20,30;-100,-25,20];
+    s = [800,300,1500;600,450,-1000];
+    xTrue = [1000,-200,300;-1000,-250,200];
 %     %Attack example 3 
 %     s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
 %     xTrue = [10,-20,30;-10,-25,20];
@@ -73,7 +73,7 @@ end
 t0=zeros(N,M); % true propagation time
 for i=1:N
     for j=1:M
-        t0(i,j)=norm(x(:,i)-y(:,j))/c+nm(i,j);
+        t0(i,j)=norm(x(:,i)-y(:,j))/c+0*nm(i,j);
     end
 end
 % Setting the first sensor as reference sensor, get the TDOA measurements
