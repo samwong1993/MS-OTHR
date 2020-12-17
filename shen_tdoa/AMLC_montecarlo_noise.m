@@ -17,15 +17,15 @@ c = 1;
 % s = initial + range*rand(d,M);   % Sensor Location
 % Example 1 (Shen)
 % s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40]; xTrue = [10,-20,30;-10,-25,20];
-% Example 6 (Shen) --- Large-scale
-s = [-90,-90,-90,-90,-90,-30,-30,-30,-30,-30,30,30,30,30,30,90,90,90,90,90;-90,-45,0,45,90,-90,-45,0,45,90,-90,-45,0,45,90,-90,-45,0,45,90];
-xTrue = [0,60,-60,-65,70,0,10;70,60,30,-40,-60,-65,0];
-% %Attack example 1 
-% s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
-% xTrue = [100,-200,30;-100,-25,200];
-% %Attack example 2 
-% s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
-% xTrue = [10,-20,30;-100,-25,20];
+% % Example 6 (Shen) --- Large-scale
+% s = [-90,-90,-90,-90,-90,-30,-30,-30,-30,-30,30,30,30,30,30,90,90,90,90,90;-90,-45,0,45,90,-90,-45,0,45,90,-90,-45,0,45,90,-90,-45,0,45,90];
+% xTrue = [0,60,-60,-65,70,0,10;70,60,30,-40,-60,-65,0];
+%Attack example 1 
+s = [40,40,-40,-40,40,0,-40,0,10;40,-40,40,-40,0,40,0,-40,5];
+xTrue = [10,20,0;-10,0,-10];
+%Attack example 2 
+s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
+xTrue = [10,-20,30;-100,-25,20];
 % %Attack example 3 
 % s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
 % xTrue = [10,-20,30;-10,-25,20];
@@ -41,10 +41,19 @@ Omega = ones(M-1,M-1)+eye(M-1); inv_Omega =inv(Omega); % covariance matrix
 % hold on
 varNos = [1 0.316227766016838 0.1 0.031622776601684 0.01 0.003162277660168 0.001];
 SNR=10.*log10(1./varNos);
-for idx_SNR = 7%1:length(SNR)
-    for idx_seed = 1:30
+for idx_SNR = 1%3:length(SNR)
+    for idx_seed = 1:3
     %% Generating measurements
-    rand('seed',idx_seed-1); randn('seed',idx_seed-1); % using the same set of random numbers
+%     rand('seed',idx_seed-1); randn('seed',idx_seed-1); % using the same set of random numbers
+	%Generate noise
+	G = zeros(M-1,M);
+    G(:,1) = -ones(M-1,1);
+    for i = 1:M-1
+        G(i,i+1) = 1;
+    end
+    sigma_t = varNos(idx_SNR);
+    noise_t0 = randn(M,K);
+    noise_t = (sigma_t*G*noise_t0);
     tTrue = zeros(M,K);
     for i = 1:M
         for k = 1:K
@@ -57,14 +66,6 @@ for idx_SNR = 7%1:length(SNR)
     end
     PTrue = zeros(K,K,M-1); I = eye(K);
     tau = zeros(M-1,K); orderPerm = zeros(K, M-1);
-	G = zeros(M-1,M);
-    G(:,1) = -ones(M-1,1);
-    for i = 1:M-1
-        G(i,i+1) = 1;
-    end
-    sigma_t = varNos(idx_SNR);
-    noise_t0 = randn(M,K);
-    noise_t = (sigma_t*G*noise_t0);
     for i=1:M-1
         orderPerm(:,i) = randperm(K)';
         PTrue(:,:,i) = I(orderPerm(:,i),:);
@@ -79,7 +80,7 @@ for idx_SNR = 7%1:length(SNR)
     eval(ini);
     P_tau = tau; t = zeros(M,K); 
     obj_best = 99999;
-    for idx_alg = 1:80
+    for idx_alg = 1:100
         if K ~= 1
             [P_tau0, param] = IP_los(G,param,K,M,t,P_tau);
         end
@@ -95,7 +96,7 @@ for idx_SNR = 7%1:length(SNR)
                 x_rec = [x_rec,location(:,i)];
             end
         end
-        if obj_best<5
+        if obj_best<10
             break
         end
     end
@@ -106,7 +107,7 @@ for idx_SNR = 7%1:length(SNR)
         err(i) = norm(x(i,:) - xTrue(:,i)');
     end
     %Save the results
-    fid=fopen("model_4_SNR"+string(SNR(idx_SNR))+".txt","a+");
+    fid=fopen("model_2_SNR"+string(SNR(idx_SNR))+".txt","a+");
     fprintf(fid,"%2.4f",err(1));
     for i = 2:size(xTrue,2)
         fprintf(fid,",%2.4f",err(i));

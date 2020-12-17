@@ -32,14 +32,14 @@ else
     K=3; M=8; % Normal Sources
     
 %     %Attack example 1 
-s = [40,40,-40,-40,40,0,-40,0,10;40,-40,40,-40,0,40,0,-40,5];
-xTrue = [10,20,0;-10,0,-10];
-    %Attack example 2 
-    s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
-    xTrue = [10,-20,30;-100,-25,20];
-%     %Attack example 3 
 %     s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
-%     xTrue = [10,-20,30;-10,-25,20];
+%     xTrue = [100,-200,30;-100,-25,200];
+%     %Attack example 2 
+%     s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
+%     xTrue = [10,-20,30;-100,-25,20];
+    %Attack example 3 
+    s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
+    xTrue = [10,-20,30;-10,-25,20];
 % 	%Attack example 4 
 %     s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
 %     xTrue = [100,-200,-100,100];
@@ -60,9 +60,9 @@ rmseInt=0; rmseFinal=0; rmsePer=0; % rmse of variables
 varNos = [1 0.316227766016838 0.1 0.031622776601684 0.01 0.003162277660168 0.001];
 SNR=10.*log10(1./varNos);
 for idx_SNR = 1:length(SNR)
-    for idx_seed = 1
+    for idx_seed = 1:30
     %% Generating measurements
-%     rand('seed',idx_seed-1); randn('seed',idx_seed-1); % using the same set of random numbers
+    rand('seed',idx_seed-1); randn('seed',idx_seed-1); % using the same set of random numbers
     %Generate noise
 	G = zeros(M-1,M);
     G(:,1) = -ones(M-1,1);
@@ -97,7 +97,7 @@ for idx_SNR = 1:length(SNR)
 %     end
 %     tau = tau + noise_t;
     %% Algorithm
-    cvx_solver gurobi_2
+    cvx_solver gurobi
     if InitialSel==0
         ymPrev=randn(2,K);
     else
@@ -181,7 +181,7 @@ for idx_SNR = 1:length(SNR)
         err(i) = norm(x_s(i,:) - xTrue(:,i)');
     end
     err
-    fid=fopen("shen_model_2_SNR"+string(SNR(idx_SNR))+".txt","a+");
+    fid=fopen("shen_model_3_SNR"+string(SNR(idx_SNR))+".txt","a+");
     fprintf(fid,"%2.4f",err(1));
     for i = 2:size(xTrue,2)
         fprintf(fid,",%2.4f",err(i));

@@ -27,7 +27,7 @@ while abs(optvalCurr-optvalPrev)>1e-3
             end
         end
         for i = 1:M
-            mu1(:,i)'*inv_Omega*mu1(:,i)<=tt(i)
+            mu1(:,i)'*inv_Omega*mu1(:,i) <= tt(i)
         end
     cvx_end
     optvalPrev=optvalCurr;
