@@ -1,6 +1,7 @@
 varNos = [1 0.316227766016838 0.1 0.031622776601684 0.01 0.003162277660168 0.001];
 SNR=10.*log10(1./varNos);
 err = [];
+clf
 for idx_SNR = 1:length(SNR)
     filename = ".\model_4_SNR"+string(SNR(idx_SNR))+".txt";
     [err_1,err_2,err_3]=textread(filename,'%f%f%f','delimiter',',');
