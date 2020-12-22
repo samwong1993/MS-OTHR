@@ -11,7 +11,7 @@ end
 err = [];
 clf
 for idx_SNR = 1:length(sigma)
-    filename = ".\real_"+string(sigma(idx_SNR))+".txt";
+    filename = ".\real_M6_"+string(sigma(idx_SNR))+".txt";
     [err_1,err_2,err_3,err_4]=textread(filename,'%f%f%f%f','delimiter',',');
     err = [err (mean(err_1) + mean(err_2) + mean(err_3) + mean(err_4))];
 end
