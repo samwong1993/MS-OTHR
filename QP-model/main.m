@@ -1,6 +1,6 @@
 clear all
 R = 6371.2;
-noise = 600;
+noise = 1000;
 plt = 0;
 if plt == 1
     figure('color','k')
@@ -36,7 +36,7 @@ if plt == 1
     axis equal;
     axis auto;
 end
-M = 6;
+M = 4;
 N = M*(M-1)/2;
 Omega = covariance(1,M);
 inv_Omega = inv(Omega(1:M-1,1:M-1));
@@ -69,22 +69,13 @@ XYZ(3,:) = [x0 y0 z0];
 %Tokyo
 [x0 y0 z0] = LGLTtoXYZ(139.69,35.69,R);
 XYZ(4,:) = [x0 y0 z0];
-%Seoul
-[x0 y0 z0] = LGLTtoXYZ(126.58,37.33,R);
-XYZ(5,:) = [x0 y0 z0];
-%Qing Dao
-[x0 y0 z0] = LGLTtoXYZ(120.3826,36.0671,R);
-XYZ(6,:) = [x0 y0 z0];                  
-%Hong Kong
-[x0 y0 z0] = LGLTtoXYZ(114.16,22.28,R);
-emitter4 = [x0 y0 z0]';
-beta = zeros(1,M);
-x = emitter4';
-for k = 1:M
-    beta = solve_eq(F,R,Rb,Rm,Ym,beta,XYZ,x,k);
-end
-beta4 = beta;
-emitter(:,4) = emitter4;
+% %Seoul
+% [x0 y0 z0] = LGLTtoXYZ(126.58,37.33,R);
+% XYZ(5,:) = [x0 y0 z0];
+% %Qing Dao
+% [x0 y0 z0] = LGLTtoXYZ(120.3826,36.0671,R);
+% XYZ(6,:) = [x0 y0 z0];                  
+
 %Jia Yi
 [x0 y0 z0] = LGLTtoXYZ(120.4491,23.4801,R);
 emitter1 = [x0 y0 z0]';
@@ -118,6 +109,16 @@ for k = 1:M
 end
 beta3 = beta;
 emitter(:,3) = emitter3;
+%Hong Kong
+[x0 y0 z0] = LGLTtoXYZ(114.16,22.28,R);
+emitter4 = [x0 y0 z0]';
+beta = zeros(1,M);
+x = emitter4';
+for k = 1:M
+    beta = solve_eq(F,R,Rb,Rm,Ym,beta,XYZ,x,k);
+end
+beta4 = beta;
+emitter(:,4) = emitter4;
 K = 4;
 
 tau = [];
@@ -196,7 +197,7 @@ for i = 1:size(emitter,2)
     err(i) = norm(x(i,:) - emitter(:,i)');
 end
 %Save the results
-fid=fopen("real_"+string(noise)+".txt","a+");
+fid=fopen("real_M4"+string(noise)+".txt","a+");
 fprintf(fid,"%2.4f",err(1));
 for i = 2:size(emitter,2)
     fprintf(fid,",%2.4f",err(i));
