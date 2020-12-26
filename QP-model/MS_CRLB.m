@@ -194,6 +194,6 @@ end
 plot(sigma_axis,1000*crlb,'b','linewidth',1.5);
 hold on
 plot(sigma_axis,1000*err,'^k-','linewidth',1.1,'markerfacecolor',[36, 169, 225]/255);
-
-
+xlabel('Standard Deviation of TDOA Measurement Noise (ns)')
+ylabel('RMSE of the Geolocation(m)')
 legend("CRLB M=6",'AMLC M=6',"CRLB M=4",'AMLC M=4');
