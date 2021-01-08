@@ -12,7 +12,7 @@ for iter = 1:num
 end
 
 % cvx_setup;
-cvx_solver gurobi_2;
+cvx_solver mosek;
 cvx_begin quiet
 cvx_precision best
 variable P(K,K,M-1) binary
