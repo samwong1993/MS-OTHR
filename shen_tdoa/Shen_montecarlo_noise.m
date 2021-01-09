@@ -30,8 +30,8 @@ elseif MapConfig==1 % Close Sources
     xTrue(:,1)=[10;-10]; xTrue(:,2)=[20;0]; xTrue(:,3)=[0;-10];
 else
     
-    %Attack example 1 
-s = [40,40,-40,-40,40;40,-40,40,-40,0];
+%Attack example 1 
+s = [40,40,-40,-40,40,0,-40,0,10;40,-40,40,-40,0,40,0,-40,5];
 xTrue = [10,20,0;-10,0,-10];
 %     %Attack example 2 
 %     s = [40,40,-40,-40,40,0,-40,0;40,-40,40,-40,0,40,0,-40];
@@ -42,6 +42,13 @@ xTrue = [10,20,0;-10,0,-10];
 % % 	%Attack example 4 
 %     s = [800,300,1500,-600;600,450,-1000,700];
 %     xTrue = [1000,-200,300;-1000,-250,200];
+%Attack example 6 
+s = [0,0,0,0,0,0,0,0,0,0,0,-100,100,-200,200,-300,300,-400,400,-500,500;
+    0,-100,100,-200,200,-300,300,-400,400,-500,500,0,0,0,0,0,0,0,0,0,0];
+xTrue = [1500,500;2000,1000];
+% %   example 4 
+%     s = [-90,-90,-90,-90,-90,-30,-30,-30,-30,-30,30,30,30,30,30,90,90,90,90,90;-90,-45,0,45,90,-90,-45,0,45,90,-90,-45,0,45,90,-90,-45,0,45,90];
+%     xTrue = [0,60,-60,-65,70,0,10;70,60,30,-40,-60,-65,0];
 % %   example 4 
 %     s = [-90,-90,-90,-90,-90,-30,-30,-30,-30,-30,30,30,30,30,30,90,90,90,90,90;-90,-45,0,45,90,-90,-45,0,45,90,-90,-45,0,45,90,-90,-45,0,45,90];
 %     xTrue = [0,60,-60,-65,70,0,10;70,60,30,-40,-60,-65,0];
@@ -58,8 +65,8 @@ rmseInt=0; rmseFinal=0; rmsePer=0; % rmse of variables
 
 varNos = [1 0.316227766016838 0.1 0.031622776601684 0.01 0.003162277660168 0.001];
 SNR=10.*log10(1./varNos);
-for idx_SNR = 3%1:length(SNR)
-    for idx_seed = 1:70
+for idx_SNR = 5%1:length(SNR)
+    for idx_seed = 1:50
     %% Generating measurements
 %     rand('seed',idx_seed-1); randn('seed',idx_seed-1); % using the same set of random numbers
     %Generate noise
@@ -96,7 +103,7 @@ for idx_SNR = 3%1:length(SNR)
 %     end
 %     tau = tau + noise_t;
     %% Algorithm
-    cvx_solver MOSEK
+    cvx_solver gurobi_2
     if InitialSel==0
         ymPrev=randn(2,K);
     else
@@ -180,7 +187,7 @@ for idx_SNR = 3%1:length(SNR)
         err(i) = norm(x_s(i,:) - xTrue(:,i)');
     end
     err
-    fid=fopen("shen_model_1_M5_SNR"+string(SNR(idx_SNR))+".txt","a+");
+    fid=fopen("shen_model_6_M13_SNR"+string(SNR(idx_SNR))+".txt","a+");
     fprintf(fid,"%2.4f",err(1));
     for i = 2:size(xTrue,2)
         fprintf(fid,",%2.4f",err(i));
