@@ -38,11 +38,11 @@ xTrue = [10,20,0;-10,0,-10];
 %Attack example 6 
 s = [0,0,0,0,0,0,0,0,0,0,0,-100,100,-200,200,-300,300,-400,400,-500,500;
     0,-100,100,-200,200,-300,300,-400,400,-500,500,0,0,0,0,0,0,0,0,0,0];
-xTrue = [1500,500;2000,1000];
-% %Attack example 7 
-% s = [0,500,500,-500,-500;
-%     0,500,-500,500,-500];
-% xTrue = [3000,1000,6000,0;2000,5000,0,8000];
+%Attack example 7 
+s = [0,50,-50,-50,100,-100,-100;
+    0,-50,50,-50,-100,100,-100];
+xTrue = [151,149;148,152];
+
 % xTrue(:,1) = [];
 % Example 7 (Shen)
 % s = [40,40,-40,-40,40,0,-40,0,10;40,-40,40,-40,0,40,0,-40,0]; xTrue = [10,20,0;-10,0,-10];
@@ -54,8 +54,8 @@ Omega = ones(M-1,M-1)+eye(M-1); inv_Omega =inv(Omega); % covariance matrix
 % hold on
 varNos = [1 0.316227766016838 0.1 0.031622776601684 0.01 0.003162277660168 0.001];
 SNR=10.*log10(1./varNos);
-for idx_SNR = 7%1:length(SNR)
-    for idx_seed = 1:5
+for idx_SNR = 3:length(SNR)
+    for idx_seed = 1:50
     %% Generating measurements
 %     rand('seed',idx_seed-1); randn('seed',idx_seed-1); % using the same set of random numbers
 	%Generate noise
@@ -84,8 +84,8 @@ for idx_SNR = 7%1:length(SNR)
         PTrue(:,:,i) = I(orderPerm(:,i),:);
         tau(i,:) = delta_tTrue(i,:)* PTrue(:,:,i) + noise_t(i,:);
     end
-
     %% solve IP
+    clear param
     ini = '';
     for i = 1:M-1
          ini = ini + "param.cut"+string(i)+"(:,:,1) = zeros(K,K);";
@@ -93,7 +93,7 @@ for idx_SNR = 7%1:length(SNR)
     eval(ini);
     P_tau = tau; t = zeros(M,K); 
     obj_best = 9999999;
-    for idx_alg = 1:50
+    for idx_alg = 1:30
         if K ~= 1
             [P_tau0, param] = IP_los(G,param,K,M,t,P_tau);
         end

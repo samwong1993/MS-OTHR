@@ -40,10 +40,9 @@ s = [0,0,0,0,0,0,0,0,0,0,0,-100,100,-200,200,-300,300,-400,400,-500,500;
     0,-100,100,-200,200,-300,300,-400,400,-500,500,0,0,0,0,0,0,0,0,0,0];
 xTrue = [1500,500;2000,1000];
 %Attack example 7 
-s = [0,0,50,-50;
-    0,50,0,-50];
-xTrue = [151,149;148,152];
-
+s = [0,500,500,-500,-500;
+    0,500,-500,500,-500];
+xTrue = [3000,1000,6000,0,4000,5000,-3000,-1000;2000,5000,0,8000,6000,-2000,3000,-1000];
 % xTrue(:,1) = [];
 % Example 7 (Shen)
 % s = [40,40,-40,-40,40,0,-40,0,10;40,-40,40,-40,0,40,0,-40,0]; xTrue = [10,20,0;-10,0,-10];
@@ -55,11 +54,14 @@ Omega = ones(M-1,M-1)+eye(M-1); inv_Omega =inv(Omega); % covariance matrix
 % hold on
 varNos = [1 0.316227766016838 0.1 0.031622776601684 0.01 0.003162277660168 0.001];
 SNR=10.*log10(1./varNos);
-for idx_SNR = 1:length(SNR)
+for idx_SNR = 7%1:length(SNR)
+        
     for idx_seed = 1:5
     %% Generating measurements
 %     rand('seed',idx_seed-1); randn('seed',idx_seed-1); % using the same set of random numbers
 	%Generate noise
+    clear param
+    K = size(xTrue,2);
 	G = zeros(M-1,M);
     G(:,1) = -ones(M-1,1);
     for i = 1:M-1
@@ -85,35 +87,53 @@ for idx_SNR = 1:length(SNR)
         PTrue(:,:,i) = I(orderPerm(:,i),:);
         tau(i,:) = delta_tTrue(i,:)* PTrue(:,:,i) + noise_t(i,:);
     end
-
+	P_tau = tau; t = zeros(M,K); 
+    obj_best = 9999999;
     %% solve IP
     ini = '';
     for i = 1:M-1
          ini = ini + "param.cut"+string(i)+"(:,:,1) = zeros(K,K);";
     end
     eval(ini);
-    P_tau = tau; t = zeros(M,K); 
-    obj_best = 9999999;
-    for idx_alg = 1:30
+    x_rec = [];
+    for iter = 1:200
         if K ~= 1
             [P_tau0, param] = IP_los(G,param,K,M,t,P_tau);
         end
-        obj = trace((G*t - P_tau0)'*inv_Omega*(G*t - P_tau0));
-        fprintf("iter:%d obj:%2.8f K:%d\n",idx_alg,obj,K);
+        obj = trace((G(1:M-1,1:M)*t - P_tau0)'*inv_Omega*(G(1:M-1,1:M)*t - P_tau0));
+        fprintf("iter:%d obj:%2.8f K:%d\n",iter,obj,K);
         [t_sum,obj_sum,location] = msLoc(s,P_tau0,Omega,inv_Omega,d,K,M,c);
         t = t_sum;
-        if obj_sum <= obj_best
-            x_rec = [];
-            obj_best = obj_sum;
+        index = find(obj_sum >= 1e-1);
+        dif_index = find(obj_sum <= 1e-1);
+        if isempty(index)
             %Record the location of the last iterartion and break
-            for i = 1:K
-                x_rec = [x_rec,location(:,i)];
+            for i = 1:length(dif_index)
+                eval("x_rec = [x_rec,location(:,"+string(dif_index(i))+")];");
             end
-        end
-        if obj_best<1e-2
             break
         end
+        if ~isempty(dif_index)
+            %Update P_tau and K
+            for i = 1:length(dif_index)
+                P_tau = del(P_tau,P_tau0(:,dif_index(i)));
+            end
+            K = size(P_tau,2);
+            %Record the location
+            for i = 1:length(dif_index)
+                eval("x_rec = [x_rec,location(:,"+string(dif_index(i))+")];");
+            end
+            t = t_sum(:,index);
+            clear param
+            ini = '';
+            for i = 1:M-1
+                 ini = ini + "param.cut"+string(i)+"(:,:,1) = zeros(K,K);";
+            end
+            eval(ini);
+        end
     end
+    
+    
     %Compute the localization error
     [P] = compute_err(x_rec',xTrue);
     x = P*x_rec';
@@ -121,7 +141,7 @@ for idx_SNR = 1:length(SNR)
         err(i) = norm(x(i,:) - xTrue(:,i)');
     end
     %Save the results
-    fid=fopen("model_7_SNR"+string(SNR(idx_SNR))+".txt","a+");
+    fid=fopen("model_7_M5_SNR"+string(SNR(idx_SNR))+".txt","a+");
     fprintf(fid,"%2.4f",err(1));
     for i = 2:size(xTrue,2)
         fprintf(fid,",%2.4f",err(i));

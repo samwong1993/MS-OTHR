@@ -91,6 +91,7 @@ for i = 1:M-1
     eval("P_tau = [P_tau;tau(i,:)*param.P"+string(i)+"];");
 end
 %Initialize the linear cut sets
+clear param
 ini = '';
 for i = 1:M-1
      ini = ini + "param.cut"+string(i)+"(:,:,1) = zeros(K,K);";

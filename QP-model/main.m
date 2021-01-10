@@ -147,6 +147,7 @@ for i = 1:M-1
     eval("P_tau = [P_tau;tau(i,:)*param.P"+string(i)+"];");
 end
 %Initialize the linear cut sets
+clear param
 ini = '';
 for i = 1:M-1
      ini = ini + "param.cut"+string(i)+"(:,:,1) = zeros(K,K);";
@@ -163,7 +164,7 @@ for iter = 1:100
     [t_sum,obj_sum,location] = solve_GPGD(M,N,F,Rb,Rm,Ym,P_F,R,P_Rb,P_Rm,P_Ym,G,P_tau0,inv_Omega,upper,max_dis,min_dis,XYZ,plt,K);    
 	t = t_sum;
     index = find(obj_sum >= 1e1);
-    dif_index = find(obj_sum <= 1e0);
+    dif_index = find(obj_sum <= 1e1);
     if isempty(index)
         %Record the location of the last iterartion and break
         for i = 1:length(dif_index)
